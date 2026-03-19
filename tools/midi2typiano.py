@@ -77,8 +77,8 @@ def extract_melody(mid, track_idx=None, max_notes=200):
 
 
 def extract_melody_top_voice(mid, track_idx=None, max_notes=200):
-    """Alternative extraction: collect all note events with timestamps,
-    then pick the highest note at each time step."""
+    """Extract melody by taking the highest note only when notes are
+    truly simultaneous (same tick). Sequential notes are all kept."""
 
     if track_idx is not None and track_idx < len(mid.tracks):
         merged = mid.tracks[track_idx]
@@ -96,22 +96,21 @@ def extract_melody_top_voice(mid, track_idx=None, max_notes=200):
     if not events:
         return []
 
-    ticks_per_beat = mid.ticks_per_beat
-    # Group notes that happen close together (within 1/16 note)
-    group_threshold = ticks_per_beat // 4
-
+    # Group only truly simultaneous notes (delta = 0 ticks)
+    # This preserves fast runs like E5 Eb5 E5 Eb5 E5
     groups = []
     current_group = [events[0]]
 
     for i in range(1, len(events)):
-        if events[i][0] - current_group[0][0] <= group_threshold:
+        if events[i][0] == current_group[0][0]:
+            # Same exact tick = simultaneous (chord) → group together
             current_group.append(events[i])
         else:
             groups.append(current_group)
             current_group = [events[i]]
     groups.append(current_group)
 
-    # Pick highest note from each group (melody = top voice)
+    # Pick highest note from each group (chord → top voice)
     melody = []
     last_note = None
     for group in groups:
