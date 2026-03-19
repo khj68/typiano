@@ -1,0 +1,17 @@
+[package]
+name = "typiano"
+version = "0.1.0"
+edition = "2021"
+description = "Turn your typing into a piano performance"
+license = "MIT"
+repository = "https://github.com/khj68/typiano"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+rodio = "0.19"
+rdev = "0.5"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rand = "0.8"
+anyhow = "1"
+libc = "0.2"

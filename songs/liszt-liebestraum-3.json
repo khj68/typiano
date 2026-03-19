@@ -1,0 +1,24 @@
+{
+  "id": "liszt-liebestraum-3",
+  "title": "Liebestraum No.3",
+  "composer": "Franz Liszt",
+  "notes": [
+    "Ab2", "Eb3", "Ab3", "C4", "Eb4",
+    "Ab4", "C5", "F5", "Ab5", "G5", "F5", "C5", "Ab4",
+    "Eb3", "Ab3", "C4", "F4",
+    "Eb4", "F4", "G4", "Ab4", "C5", "Eb5", "F5", "Eb5", "C5",
+    "Ab2", "Eb3", "Bb3", "Db4",
+    "Db5", "C5", "Bb4", "Ab4", "G4", "F4", "Eb4", "Db4",
+    "Db3", "Ab3", "Db4", "F4",
+    "Ab4", "Bb4", "C5", "Db5", "Eb5", "F5", "G5", "Ab5",
+    "Ab2", "Eb3", "Bb3", "C4", "Gb4",
+    "G5", "F5", "Eb5", "Db5", "C5", "Bb4", "Ab4", "Gb4",
+    "Eb3", "Bb3", "Eb4", "Gb4",
+    "F4", "G4", "Ab4", "Bb4", "C5", "Db5", "Eb5", "F5",
+    "Ab2", "Eb3", "Ab3", "C4",
+    "Ab5", "G5", "F5", "Eb5", "Db5", "C5", "Bb4", "Ab4",
+    "Db3", "F3", "Ab3", "Db4", "F4",
+    "Eb4", "F4", "Gb4", "Ab4", "Bb4", "C5", "F5", "Ab5",
+    "Ab2", "Eb3", "Ab3", "C4", "Eb4", "Ab4", "C5", "Eb5", "Ab5"
+  ]
+}

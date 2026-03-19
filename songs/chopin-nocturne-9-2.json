@@ -1,0 +1,21 @@
+{
+  "id": "chopin-nocturne-9-2",
+  "title": "Nocturne Op.9 No.2",
+  "composer": "Frédéric Chopin",
+  "notes": [
+    "Eb3", "Bb3", "G4", "Bb4", "G4", "Eb4", "Bb3", "Eb4", "G4", "Bb4", "C5",
+    "Bb2", "F3", "D4", "F4", "Bb4", "D5", "Eb5",
+    "Eb3", "Bb3", "G4", "Bb4", "G4", "F4", "Eb4", "D4", "Eb4", "G4",
+    "Ab2", "Eb3", "Ab3", "C4", "Eb4", "Ab4", "C5", "Ab4", "G4", "F4",
+    "Bb2", "F3", "D4", "F4", "Bb4", "Ab4", "G4", "F4", "Eb4",
+    "Eb3", "Bb3", "G4", "Bb4", "C5", "D5", "Eb5", "F5", "G5",
+    "Ab3", "Eb4", "Ab4", "Bb5", "Ab5", "G5", "F5", "Eb5", "D5",
+    "Eb3", "Bb3", "G4", "Eb5", "F5", "G5", "Ab5", "Bb5",
+    "F3", "C4", "Ab4", "Ab5", "G5", "F5", "Eb5", "D5", "C5",
+    "Bb2", "F3", "D4", "Bb4", "C5", "D5", "Eb5",
+    "Eb3", "Bb3", "G4", "F5", "Eb5", "D5", "C5", "Bb4",
+    "Ab2", "Eb3", "Ab3", "C4", "Eb5", "Ab5", "G5", "Eb5",
+    "Bb2", "F3", "Bb3", "D5", "Bb4", "Ab4", "G4", "F4", "Eb4", "D4",
+    "Eb3", "G3", "Bb3", "Eb4", "G4", "Bb4", "Eb5"
+  ]
+}
