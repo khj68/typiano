@@ -1,0 +1,20 @@
+{
+  "id": "waltz-of-flowers",
+  "title": "Waltz of the Flowers",
+  "composer": "Pyotr Ilyich Tchaikovsky",
+  "notes": [
+    "D5", "Db5", "D5", "E5", "Gb5", "A5", "Gb5", "D5",
+    "E5", "Gb5", "A5", "B5", "A5", "Gb5", "E5", "D5",
+    "Db5", "D5", "E5", "Gb5", "A5", "D6", "Db6", "B5",
+    "A5", "Gb5", "D5", "Db5", "D5", "E5", "Gb5", "A5",
+    "D5", "E5", "Gb5", "A5", "D5", "Db5", "B4", "A4",
+    "Gb4", "A4", "B4", "Db5", "D5", "E5", "Gb5", "A5",
+    "B5", "A5", "Gb5", "E5", "D5", "Db5", "B4", "A4",
+    "B4", "D5", "Gb5", "A5", "Gb5", "D5", "B4", "A4",
+    "D5", "Gb5", "A5", "B5", "A5", "Gb5", "D5", "B4",
+    "E5", "Gb5", "A5", "B5", "A5", "Gb5", "E5", "D5",
+    "Db5", "B4", "A4", "Gb4", "A4", "B4", "Db5", "D5",
+    "E5", "Gb5", "A5", "D6", "Db6", "B5", "A5", "Gb5",
+    "D5", "E5", "Gb5", "A5"
+  ]
+}

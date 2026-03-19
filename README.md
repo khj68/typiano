@@ -110,17 +110,24 @@ Notes use scientific pitch notation: `C2` to `C7`, with flats (`Db`, `Eb`, `Gb`,
 
 ## 🎶 Built-in Songs
 
-20 public domain classical piano pieces:
+35 classical & popular piano pieces:
 
 | Composer | Pieces |
 |----------|--------|
-| **Beethoven** | Für Elise, Moonlight Sonata, Pathétique (2nd mvt) |
-| **Chopin** | Nocturne Op.9 No.2, Waltz Op.64 No.2, Prelude Op.28 No.4, Etude Op.10 No.3, Ballade No.1 |
-| **Debussy** | Clair de Lune, Arabesque No.1, Rêverie |
+| **Beethoven** | Für Elise, Moonlight Sonata, Pathétique (2nd mvt), Symphony No.5 |
+| **Chopin** | Nocturne Op.9 No.2, Waltz Op.64 No.2, Prelude Op.28 No.4, Etude Op.10 No.3, Ballade No.1, Fantasie-Impromptu, Raindrop Prelude |
+| **Debussy** | Clair de Lune, Arabesque No.1, Rêverie, Suite bergamasque Prelude, Doctor Gradus |
 | **Bach** | Prelude in C Major BWV 846, Two-Part Invention No.1 |
-| **Mozart** | Turkish March (Rondo alla Turca) |
+| **Mozart** | Turkish March, Eine kleine Nachtmusik |
+| **Liszt** | Liebesträum No.3, La Campanella |
+| **Tchaikovsky** | Swan Lake Theme, Waltz of the Flowers |
 | **Satie** | Gymnopédie No.1, Gnossienne No.1 |
-| **Liszt** | Liebesträum No.3 |
+| **Ravel** | Boléro |
+| **Pachelbel** | Canon in D |
+| **Rimsky-Korsakov** | Flight of the Bumblebee |
+| **Yiruma** | River Flows in You |
+| **Tiersen** | Comptine d'un autre été (Amélie) |
+| **Senneville** | Spring Waltz (Mariage d'Amour) |
 | **Schumann** | Träumerei |
 | **Grieg** | Morning Mood (Peer Gynt) |
 | **Schubert** | Impromptu Op.90 No.3 |

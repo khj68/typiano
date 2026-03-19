@@ -155,6 +155,21 @@ fn builtin_songs() -> Vec<Song> {
         include_str!("../songs/grieg-morning-mood.json"),
         include_str!("../songs/schubert-impromptu-90-3.json"),
         include_str!("../songs/chopin-ballade-1.json"),
+        include_str!("../songs/canon-in-d.json"),
+        include_str!("../songs/river-flows-in-you.json"),
+        include_str!("../songs/comptine.json"),
+        include_str!("../songs/spring-waltz.json"),
+        include_str!("../songs/la-campanella.json"),
+        include_str!("../songs/fantasie-impromptu.json"),
+        include_str!("../songs/waltz-of-flowers.json"),
+        include_str!("../songs/eine-kleine.json"),
+        include_str!("../songs/swan-lake.json"),
+        include_str!("../songs/flight-of-bumblebee.json"),
+        include_str!("../songs/bolero.json"),
+        include_str!("../songs/clair-de-lune-suite.json"),
+        include_str!("../songs/chopin-raindrop.json"),
+        include_str!("../songs/beethoven-5th.json"),
+        include_str!("../songs/debussy-doctor-gradus.json"),
     ];
     for data in song_files {
         if let Ok(song) = serde_json::from_str::<Song>(data) {

@@ -3,24 +3,17 @@
   "title": "Impromptu Op.90 No.3",
   "composer": "Franz Schubert",
   "notes": [
-    "Gb2", "Db3", "Gb3", "Bb3", "Db4",
-    "Gb4", "Bb4", "Db5", "Gb5", "F5", "Eb5", "Db5", "Bb4",
-    "Db3", "Gb3", "Bb3", "Eb4",
-    "Gb4", "Ab4", "Bb4", "Db5", "Eb5", "Db5", "Bb4", "Ab4", "Gb4",
-    "Gb2", "Db3", "Ab3", "Eb4",
+    "Gb4", "Bb4", "Db5", "Gb5", "F5", "Eb5", "Db5", "Bb4", "Gb4",
+    "Ab4", "Bb4", "Db5", "Eb5", "Db5", "Bb4", "Ab4", "Gb4",
     "F4", "Gb4", "Ab4", "Bb4", "Db5", "Eb5", "F5", "Gb5",
-    "Bb2", "Gb3", "Bb3", "Db4", "Gb4",
     "Eb5", "Db5", "Bb4", "Ab4", "Gb4", "F4", "Eb4", "Db4",
-    "Gb2", "Db3", "Gb3", "B3",
     "Bb3", "Db4", "F4", "Gb4", "Ab4", "Bb4", "Db5", "Gb5",
-    "Db2", "Ab3", "Eb4", "Ab4",
     "F5", "Eb5", "Db5", "Bb4", "Ab4", "Gb4", "F4", "Eb4",
-    "Bb2", "Db3", "Ab3", "Db4", "Gb4",
     "Gb4", "A4", "Bb4", "Db5", "Eb5", "F5", "Gb5", "F5", "Eb5",
-    "Gb2", "Db3", "Bb3", "F4",
     "Db5", "Bb4", "Ab4", "Gb4", "F4", "Eb4", "Db4", "Bb3",
-    "Gb3", "B3", "Db4", "A4", "Gb4",
-    "Ab4", "Bb4", "Db5", "Eb5", "F5",
-    "Db2", "Gb2", "Db3", "F3", "Gb3", "Bb3", "Db4", "Gb4", "Bb4", "Db5", "Gb5"
+    "Gb4", "Bb4", "Db5", "Gb5", "F5", "Eb5", "Db5", "Bb4",
+    "Ab4", "Bb4", "Db5", "Eb5", "F5", "Eb5", "Db5", "Bb4", "Ab4",
+    "Gb4", "Ab4", "Bb4", "Db5", "Eb5", "F5", "Gb5", "F5",
+    "Eb5", "Db5", "Bb4", "Ab4", "Gb4", "Bb4", "Db5", "Gb5"
   ]
 }

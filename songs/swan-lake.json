@@ -1,0 +1,20 @@
+{
+  "id": "swan-lake",
+  "title": "Swan Lake Theme",
+  "composer": "Pyotr Ilyich Tchaikovsky",
+  "notes": [
+    "Bb4", "A4", "Bb4", "Db5", "F5", "Eb5", "Db5", "Bb4",
+    "A4", "Bb4", "F4", "Bb4", "A4", "Bb4", "Db5", "F5",
+    "Eb5", "Db5", "Bb4", "A4", "Gb4", "A4", "Bb4",
+    "Db5", "F5", "Eb5", "Db5", "Bb4", "Db5", "Eb5", "F5",
+    "Gb5", "F5", "Eb5", "Db5", "Bb4", "A4", "Bb4", "Db5",
+    "Bb4", "A4", "Gb4", "F4", "Gb4", "A4", "Bb4", "Db5",
+    "Eb5", "Db5", "Bb4", "A4", "Bb4", "Db5", "F5", "Gb5",
+    "F5", "Eb5", "Db5", "Bb4", "Db5", "Eb5", "F5", "Gb5",
+    "F5", "Eb5", "Db5", "Bb4", "A4", "Bb4", "F4",
+    "Bb4", "A4", "Bb4", "Db5", "Eb5", "F5", "Gb5", "F5",
+    "Eb5", "Db5", "Bb4", "A4", "Gb4", "A4", "Bb4", "Db5",
+    "F5", "Eb5", "Db5", "Eb5", "F5", "Gb5", "F5", "Eb5",
+    "Db5", "Bb4", "A4", "Bb4"
+  ]
+}
