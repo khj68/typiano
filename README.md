@@ -40,7 +40,7 @@ Song ID:     chopin-nocturne-9-2
 Progress:    [████████░░░░░░░░░░░░] 63/150 notes (42%)
 
 $ typiano list
-Available songs (35):
+Available songs (29):
 
    fur-elise                      Beethoven - Fur Elise
    chopin-nocturne-9-2            Chopin - Nocturne Op.9 No.2
