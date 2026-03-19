@@ -37,15 +37,21 @@ $ typiano on
 $ typiano status
 Now playing: Chopin - Nocturne Op.9 No.2
 Song ID:     chopin-nocturne-9-2
-Progress:    [████████░░░░░░░░░░░░] 42/122 notes (34%)
+Progress:    [████████░░░░░░░░░░░░] 63/150 notes (42%)
 
 $ typiano list
-Available songs (20):
+Available songs (35):
 
    fur-elise                      Beethoven - Fur Elise
    chopin-nocturne-9-2            Chopin - Nocturne Op.9 No.2
-   moonlight-sonata               Beethoven - Moonlight Sonata
+   river-flows-in-you             Yiruma - River Flows in You
    ...
+
+$ typiano random
+Now playing: Ravel - Bolero
+
+$ typiano off
+typiano stopped.
 ```
 
 ## 📦 설치
@@ -74,25 +80,24 @@ brew install typiano
 
 ## 🚀 사용법
 
-```bash
-typiano on              # daemon 시작 (랜덤 곡)
-typiano off             # daemon 종료
-typiano play <song-id>  # 특정 곡으로 변경
-typiano list            # 수록곡 전체 목록
-typiano status          # 현재 곡 & 진행 상황
-typiano random          # 랜덤 곡으로 변경
-```
+| 명령어 | 설명 |
+|---------|------|
+| `typiano on` | daemon 시작 (랜덤 곡) |
+| `typiano off` | daemon 종료 |
+| `typiano play <id>` | 특정 곡으로 변경 |
+| `typiano list` | 수록곡 전체 목록 |
+| `typiano status` | 현재 곡 & 진행 상황 |
+| `typiano random` | 랜덤 곡으로 변경 |
+| `typiano add <file>` | JSON 파일로 커스텀 곡 추가 |
+| `typiano remove <id>` | 사용자가 추가한 곡 삭제 |
 
 ### 나만의 곡 추가하기
 
 누구나 커스텀 곡을 추가할 수 있습니다:
 
 ```bash
-# JSON 파일로 곡 추가
-typiano add my-song.json
-
-# 사용자가 추가한 곡 삭제
-typiano remove my-song
+typiano add my-song.json       # 추가
+typiano remove my-song          # 삭제 (사용자가 추가한 곡만)
 ```
 
 곡 JSON 형식:
@@ -108,22 +113,47 @@ typiano remove my-song
 
 음표는 과학적 음높이 표기법을 사용합니다: `C2`부터 `C7`까지, 플랫 포함 (`Db`, `Eb`, `Gb`, `Ab`, `Bb`).
 
+### MIDI에서 변환하기
+
+정확한 멜로디 추출을 위한 MIDI 변환 도구가 포함되어 있습니다:
+
+```bash
+python3 tools/midi2typiano.py song.mid \
+  --id my-song --title "My Song" --composer "Someone" \
+  --max-notes 150
+```
+
 ## 🎶 수록곡
 
-퍼블릭 도메인 클래식 피아노 20곡이 내장되어 있습니다:
+실제 MIDI 파일에서 추출한 정확한 멜로디 35곡이 내장되어 있습니다:
 
 | 작곡가 | 수록곡 |
 |----------|--------|
-| **Beethoven** | Für Elise, Moonlight Sonata, Pathétique (2nd mvt) |
-| **Chopin** | Nocturne Op.9 No.2, Waltz Op.64 No.2, Prelude Op.28 No.4, Etude Op.10 No.3, Ballade No.1 |
-| **Debussy** | Clair de Lune, Arabesque No.1, Rêverie |
+| **Beethoven** | Für Elise, Moonlight Sonata, Pathétique (2nd mvt), Symphony No.5 |
+| **Chopin** | Nocturne Op.9 No.2, Waltz Op.64 No.2, Prelude Op.28 No.4, Etude Op.10 No.3, Ballade No.1, Fantasie-Impromptu, Raindrop Prelude |
+| **Debussy** | Clair de Lune, Arabesque No.1, Rêverie, Suite bergamasque Prelude, Doctor Gradus |
 | **Bach** | Prelude in C Major BWV 846, Two-Part Invention No.1 |
-| **Mozart** | Turkish March (Rondo alla Turca) |
+| **Mozart** | Turkish March, Eine kleine Nachtmusik |
+| **Liszt** | Liebesträum No.3, La Campanella |
+| **Tchaikovsky** | Swan Lake Theme, Waltz of the Flowers |
 | **Satie** | Gymnopédie No.1, Gnossienne No.1 |
-| **Liszt** | Liebesträum No.3 |
+| **Ravel** | Boléro |
+| **Pachelbel** | Canon in D |
+| **Rimsky-Korsakov** | Flight of the Bumblebee |
+| **Yiruma** | River Flows in You |
+| **Tiersen** | Comptine d'un autre été (Amélie) |
+| **Senneville** | Spring Waltz (Mariage d'Amour) |
 | **Schumann** | Träumerei |
 | **Grieg** | Morning Mood (Peer Gynt) |
 | **Schubert** | Impromptu Op.90 No.3 |
+
+## 🎹 사운드
+
+Typiano는 General MIDI SoundFont에서 FluidSynth를 통해 렌더링한 **일렉트릭 피아노 (Rhodes)** 샘플을 사용합니다.
+
+- 61건반: C2 – C7
+- 깨끗하고 따뜻한 MIDI 톤
+- 자연스러운 페이드아웃이 적용된 2초 샘플
 
 ## ⚙️ 동작 원리
 
@@ -133,7 +163,7 @@ typiano on  →  백그라운드 daemon 실행
                 ├── rodio          (오디오 재생)
                 └── Unix socket    (IPC 서버)
 
-키 입력  →  곡의 다음 음표  →  피아노 샘플 재생
+키 입력  →  곡의 다음 음표  →  일렉트릭 피아노 샘플 재생
 ```
 
 1. `typiano on`은 백그라운드 daemon 프로세스를 실행합니다
@@ -161,26 +191,31 @@ src/
 ├── daemon.rs    # daemon 생명주기 (fork, PID, signal)
 ├── input.rs     # rdev 키 리스너
 ├── engine.rs    # 곡 상태 머신 (현재 곡, 음표 인덱스, 반복)
-├── audio.rs     # rodio 재생, 샘플 뱅크, crossfade
+├── audio.rs     # rodio 재생, 샘플 뱅크
 ├── ipc.rs       # Unix socket 서버/클라이언트
 ├── songs.rs     # 곡 구조체, 로더, 검증기
 └── config.rs    # 경로 & 상태
+
+tools/
+├── midi2typiano.py      # MIDI → JSON 곡 변환기
+└── generate_samples.sh  # 샘플 생성 스크립트
 ```
 
 ## 🤝 기여하기
 
 기여는 언제나 환영합니다! 다음과 같은 방법으로 참여할 수 있습니다:
 
-- 🎵 **곡 추가**: JSON 파일을 만들어 `songs/` 디렉토리에 PR을 보내주세요
+- 🎵 **곡 추가**: MIDI 파일을 `midi2typiano.py`로 변환하여 PR을 보내주세요
 - 🐛 **버그 제보**: 이슈를 열어주세요
 - 💡 **기능 제안**: `[Feature Request]` 태그와 함께 이슈를 열어주세요
 
 ### 새로운 곡 추가 방법
 
-1. [곡 형식](#나만의-곡-추가하기)에 맞춰 JSON 파일을 만듭니다
-2. `songs/` 디렉토리에 넣습니다
-3. `src/songs.rs`에 `include_str!` 라인을 추가합니다
-4. PR을 제출합니다
+1. 해당 곡의 MIDI 파일을 구합니다
+2. 변환: `python3 tools/midi2typiano.py song.mid --id song-id --title "Title" --composer "Composer"`
+3. JSON 파일을 `songs/` 디렉토리에 넣습니다
+4. `src/songs.rs`에 `include_str!` 라인을 추가합니다
+5. PR을 제출합니다
 
 ## 📄 라이선스
 

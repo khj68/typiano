@@ -37,15 +37,21 @@ $ typiano on
 $ typiano status
 Now playing: Chopin - Nocturne Op.9 No.2
 Song ID:     chopin-nocturne-9-2
-Progress:    [████████░░░░░░░░░░░░] 42/122 notes (34%)
+Progress:    [████████░░░░░░░░░░░░] 63/150 notes (42%)
 
 $ typiano list
-Available songs (20):
+Available songs (35):
 
    fur-elise                      Beethoven - Fur Elise
    chopin-nocturne-9-2            Chopin - Nocturne Op.9 No.2
-   moonlight-sonata               Beethoven - Moonlight Sonata
+   river-flows-in-you             Yiruma - River Flows in You
    ...
+
+$ typiano random
+Now playing: Ravel - Bolero
+
+$ typiano off
+typiano stopped.
 ```
 
 ## 📦 安装
@@ -74,25 +80,24 @@ brew install typiano
 
 ## 🚀 使用方法
 
-```bash
-typiano on              # 启动 daemon（随机歌曲）
-typiano off             # 停止 daemon
-typiano play <song-id>  # 切换到指定歌曲
-typiano list            # 显示所有可用歌曲
-typiano status          # 查看当前歌曲和进度
-typiano random          # 随机切换歌曲
-```
+| 命令 | 说明 |
+|---------|-------------|
+| `typiano on` | 启动 daemon（随机歌曲） |
+| `typiano off` | 停止 daemon |
+| `typiano play <id>` | 切换到指定歌曲 |
+| `typiano list` | 显示所有可用歌曲 |
+| `typiano status` | 查看当前歌曲和进度 |
+| `typiano random` | 随机切换歌曲 |
+| `typiano add <file>` | 从 JSON 文件添加自定义歌曲 |
+| `typiano remove <id>` | 移除用户添加的歌曲 |
 
 ### 添加自定义歌曲
 
 任何人都可以添加自定义歌曲：
 
 ```bash
-# 从 JSON 文件添加歌曲
-typiano add my-song.json
-
-# 移除用户添加的歌曲
-typiano remove my-song
+typiano add my-song.json       # 添加
+typiano remove my-song          # 移除（仅限用户添加的歌曲）
 ```
 
 歌曲 JSON 格式：
@@ -108,22 +113,47 @@ typiano remove my-song
 
 音符使用科学音高记谱法：从 `C2` 到 `C7`，降号表示为 `Db`、`Eb`、`Gb`、`Ab`、`Bb`。
 
+### 从 MIDI 导入
+
+内置 MIDI 转换器，可精准提取旋律：
+
+```bash
+python3 tools/midi2typiano.py song.mid \
+  --id my-song --title "My Song" --composer "Someone" \
+  --max-notes 150
+```
+
 ## 🎶 内置曲目
 
-20 首公共领域的古典钢琴作品：
+35 首乐曲，基于真实 MIDI 文件转换，旋律精准还原：
 
 | 作曲家 | 作品 |
 |----------|--------|
-| **Beethoven** | Für Elise, Moonlight Sonata, Pathétique (2nd mvt) |
-| **Chopin** | Nocturne Op.9 No.2, Waltz Op.64 No.2, Prelude Op.28 No.4, Etude Op.10 No.3, Ballade No.1 |
-| **Debussy** | Clair de Lune, Arabesque No.1, Rêverie |
+| **Beethoven** | Für Elise, Moonlight Sonata, Pathétique (2nd mvt), Symphony No.5 |
+| **Chopin** | Nocturne Op.9 No.2, Waltz Op.64 No.2, Prelude Op.28 No.4, Etude Op.10 No.3, Ballade No.1, Fantasie-Impromptu, Raindrop Prelude |
+| **Debussy** | Clair de Lune, Arabesque No.1, Rêverie, Suite bergamasque Prelude, Doctor Gradus |
 | **Bach** | Prelude in C Major BWV 846, Two-Part Invention No.1 |
-| **Mozart** | Turkish March (Rondo alla Turca) |
+| **Mozart** | Turkish March, Eine kleine Nachtmusik |
+| **Liszt** | Liebesträum No.3, La Campanella |
+| **Tchaikovsky** | Swan Lake Theme, Waltz of the Flowers |
 | **Satie** | Gymnopédie No.1, Gnossienne No.1 |
-| **Liszt** | Liebesträum No.3 |
+| **Ravel** | Boléro |
+| **Pachelbel** | Canon in D |
+| **Rimsky-Korsakov** | Flight of the Bumblebee |
+| **Yiruma** | River Flows in You |
+| **Tiersen** | Comptine d'un autre été (Amélie) |
+| **Senneville** | Spring Waltz (Mariage d'Amour) |
 | **Schumann** | Träumerei |
 | **Grieg** | Morning Mood (Peer Gynt) |
 | **Schubert** | Impromptu Op.90 No.3 |
+
+## 🎹 音色
+
+Typiano 使用 **Electric Piano (Rhodes)** 采样，通过 FluidSynth 从 General MIDI SoundFont 渲染而成。
+
+- 61 个琴键：C2 – C7
+- 干净、温暖的 MIDI 音色
+- 2 秒采样，自然渐弱收尾
 
 ## ⚙️ 工作原理
 
@@ -133,7 +163,7 @@ typiano on  →  后台 daemon 进程启动
                 ├── rodio          (音频播放)
                 └── Unix socket    (IPC 服务器)
 
-击键  →  歌曲的下一个音符  →  播放钢琴采样
+击键  →  歌曲的下一个音符  →  播放电钢琴采样
 ```
 
 1. `typiano on` 启动一个后台 daemon 进程
@@ -161,26 +191,31 @@ src/
 ├── daemon.rs    # daemon 生命周期（fork、PID、信号）
 ├── input.rs     # rdev 按键监听
 ├── engine.rs    # 歌曲状态机（当前歌曲、音符索引、循环）
-├── audio.rs     # rodio 播放、采样库、交叉淡入淡出
+├── audio.rs     # rodio 播放、采样库
 ├── ipc.rs       # Unix socket 服务器/客户端
 ├── songs.rs     # 歌曲结构体、加载器、验证器
 └── config.rs    # 路径与状态
+
+tools/
+├── midi2typiano.py      # MIDI → JSON 歌曲转换器
+└── generate_samples.sh  # 采样生成脚本
 ```
 
 ## 🤝 参与贡献
 
 欢迎贡献！以下是一些参与方式：
 
-- 🎵 **添加歌曲**：创建 JSON 文件并向 `songs/` 提交 PR
+- 🎵 **添加歌曲**：使用 `midi2typiano.py` 转换 MIDI 文件并提交 PR
 - 🐛 **报告 Bug**：提交 issue
 - 💡 **建议新功能**：提交带有 `[Feature Request]` 标签的 issue
 
 ### 添加新歌曲
 
-1. 按照[歌曲格式](#添加自定义歌曲)创建 JSON 文件
-2. 将文件放入 `songs/` 目录
-3. 在 `src/songs.rs` 中添加 `include_str!` 行
-4. 提交 PR
+1. 找到该乐曲的 MIDI 文件
+2. 转换：`python3 tools/midi2typiano.py song.mid --id song-id --title "Title" --composer "Composer"`
+3. 将 JSON 文件放入 `songs/` 目录
+4. 在 `src/songs.rs` 中添加 `include_str!` 行
+5. 提交 PR
 
 ## 📄 许可证
 

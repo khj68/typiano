@@ -37,15 +37,21 @@ $ typiano on
 $ typiano status
 Now playing: Chopin - Nocturne Op.9 No.2
 Song ID:     chopin-nocturne-9-2
-Progress:    [████████░░░░░░░░░░░░] 42/122 notes (34%)
+Progress:    [████████░░░░░░░░░░░░] 63/150 notes (42%)
 
 $ typiano list
-Available songs (20):
+Available songs (35):
 
    fur-elise                      Beethoven - Fur Elise
    chopin-nocturne-9-2            Chopin - Nocturne Op.9 No.2
-   moonlight-sonata               Beethoven - Moonlight Sonata
+   river-flows-in-you             Yiruma - River Flows in You
    ...
+
+$ typiano random
+Now playing: Ravel - Bolero
+
+$ typiano off
+typiano stopped.
 ```
 
 ## 📦 Installation
@@ -74,25 +80,24 @@ brew install typiano
 
 ## 🚀 Usage
 
-```bash
-typiano on              # Start daemon (random song)
-typiano off             # Stop daemon
-typiano play <song-id>  # Switch to a specific song
-typiano list            # Show all available songs
-typiano status          # Current song & progress
-typiano random          # Switch to a random song
-```
+| Command | Description |
+|---------|-------------|
+| `typiano on` | Start daemon (random song) |
+| `typiano off` | Stop daemon |
+| `typiano play <id>` | Switch to a specific song |
+| `typiano list` | Show all available songs |
+| `typiano status` | Current song & progress |
+| `typiano random` | Switch to a random song |
+| `typiano add <file>` | Add a custom song from JSON |
+| `typiano remove <id>` | Remove a user-added song |
 
 ### Add your own songs
 
 Anyone can add custom songs:
 
 ```bash
-# Add a song from JSON file
-typiano add my-song.json
-
-# Remove a user-added song
-typiano remove my-song
+typiano add my-song.json       # Add
+typiano remove my-song          # Remove (user-added only)
 ```
 
 Song JSON format:
@@ -108,9 +113,19 @@ Song JSON format:
 
 Notes use scientific pitch notation: `C2` to `C7`, with flats (`Db`, `Eb`, `Gb`, `Ab`, `Bb`).
 
+### Import from MIDI
+
+A built-in MIDI converter is included for accurate melody extraction:
+
+```bash
+python3 tools/midi2typiano.py song.mid \
+  --id my-song --title "My Song" --composer "Someone" \
+  --max-notes 150
+```
+
 ## 🎶 Built-in Songs
 
-35 classical & popular piano pieces:
+35 pieces, sourced from real MIDI files for accurate melodies:
 
 | Composer | Pieces |
 |----------|--------|
@@ -132,6 +147,14 @@ Notes use scientific pitch notation: `C2` to `C7`, with flats (`Db`, `Eb`, `Gb`,
 | **Grieg** | Morning Mood (Peer Gynt) |
 | **Schubert** | Impromptu Op.90 No.3 |
 
+## 🎹 Sound
+
+Typiano uses **Electric Piano (Rhodes)** samples rendered from a General MIDI SoundFont via FluidSynth.
+
+- 61 keys: C2 – C7
+- Clean, warm MIDI tone
+- 2-second samples with natural fade-out
+
 ## ⚙️ How It Works
 
 ```
@@ -140,12 +163,12 @@ typiano on  →  background daemon spawns
                 ├── rodio          (audio playback)
                 └── Unix socket    (IPC server)
 
-keystroke  →  next note from song  →  piano sample plays
+keystroke  →  next note from song  →  electric piano sample plays
 ```
 
 1. `typiano on` spawns a background daemon process
 2. The daemon captures global keyboard events via `rdev`
-3. Each keypress advances the song and plays the next piano note
+3. Each keypress advances the song and plays the next note
 4. When the song ends, it loops from the beginning
 5. `typiano off` sends a shutdown command via Unix domain socket
 
@@ -168,26 +191,31 @@ src/
 ├── daemon.rs    # Daemon lifecycle (fork, PID, signal)
 ├── input.rs     # rdev key listener
 ├── engine.rs    # Song state machine (current song, note index, looping)
-├── audio.rs     # rodio playback, sample bank, crossfade
+├── audio.rs     # rodio playback, sample bank
 ├── ipc.rs       # Unix socket server/client
 ├── songs.rs     # Song struct, loader, validator
 └── config.rs    # Paths & state
+
+tools/
+├── midi2typiano.py      # MIDI → JSON song converter
+└── generate_samples.sh  # Sample generation script
 ```
 
 ## 🤝 Contributing
 
 Contributions are welcome! Here are some ways to help:
 
-- 🎵 **Add songs**: Create a JSON file and submit a PR to `songs/`
+- 🎵 **Add songs**: Convert a MIDI file with `midi2typiano.py` and submit a PR
 - 🐛 **Report bugs**: Open an issue
 - 💡 **Suggest features**: Open an issue with `[Feature Request]`
 
 ### Adding a new song
 
-1. Create a JSON file following the [song format](#add-your-own-songs)
-2. Place it in `songs/`
-3. Add the `include_str!` line in `src/songs.rs`
-4. Submit a PR
+1. Find a MIDI file of the piece
+2. Convert: `python3 tools/midi2typiano.py song.mid --id song-id --title "Title" --composer "Composer"`
+3. Place the JSON in `songs/`
+4. Add the `include_str!` line in `src/songs.rs`
+5. Submit a PR
 
 ## 📄 License
 
