@@ -125,13 +125,13 @@ python3 tools/midi2typiano.py song.mid \
 
 ## 🎶 Built-in Songs
 
-35 pieces, sourced from real MIDI files for accurate melodies:
+29 pieces, all sourced from real MIDI files for accurate melodies:
 
 | Composer | Pieces |
 |----------|--------|
-| **Beethoven** | Für Elise, Moonlight Sonata, Pathétique (2nd mvt), Symphony No.5 |
+| **Beethoven** | Für Elise, Moonlight Sonata, Pathétique (2nd mvt) |
 | **Chopin** | Nocturne Op.9 No.2, Waltz Op.64 No.2, Prelude Op.28 No.4, Etude Op.10 No.3, Ballade No.1, Fantasie-Impromptu, Raindrop Prelude |
-| **Debussy** | Clair de Lune, Arabesque No.1, Rêverie, Suite bergamasque Prelude, Doctor Gradus |
+| **Debussy** | Clair de Lune, Arabesque No.1 |
 | **Bach** | Prelude in C Major BWV 846, Two-Part Invention No.1 |
 | **Mozart** | Turkish March, Eine kleine Nachtmusik |
 | **Liszt** | Liebesträum No.3, La Campanella |
@@ -142,10 +142,8 @@ python3 tools/midi2typiano.py song.mid \
 | **Rimsky-Korsakov** | Flight of the Bumblebee |
 | **Yiruma** | River Flows in You |
 | **Tiersen** | Comptine d'un autre été (Amélie) |
-| **Senneville** | Spring Waltz (Mariage d'Amour) |
 | **Schumann** | Träumerei |
 | **Grieg** | Morning Mood (Peer Gynt) |
-| **Schubert** | Impromptu Op.90 No.3 |
 
 ## 🎹 Sound
 
