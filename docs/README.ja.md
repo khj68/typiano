@@ -32,29 +32,39 @@
 
 ```
 $ typiano on
-🎹 typiano started! Start typing to play piano.
+🎹 typiano started! Start typing to play piano. (sound: rhodes)
 
 $ typiano status
 Now playing: Chopin - Nocturne Op.9 No.2
 Song ID:     chopin-nocturne-9-2
 Progress:    [████████░░░░░░░░░░░░] 63/150 notes (42%)
+Sound:       rhodes
+Play mode:   random
+Game mode:   song
 
-$ typiano list
-Available songs (29):
+$ typiano sound piano
+Sound changed to: piano
 
-   fur-elise                      Beethoven - Fur Elise
-   chopin-nocturne-9-2            Chopin - Nocturne Op.9 No.2
-   river-flows-in-you             Yiruma - River Flows in You
-   ...
-
-$ typiano random
-Now playing: Ravel - Bolero
+$ typiano freeplay
+🎹 Free play mode! Your keyboard is now a piano.
 
 $ typiano off
 typiano stopped.
 ```
 
 ## 📦 インストール
+
+### 前提条件
+
+TypianoはRustで構築されています。Rustがインストールされていない場合：
+
+```bash
+# 方法1: 公式インストーラー（推奨）
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# 方法2: Homebrew (macOS)
+brew install rust
+```
 
 ### ソースからビルド（推奨）
 
@@ -82,12 +92,16 @@ brew install typiano
 
 | コマンド | 説明 |
 |---------|------|
-| `typiano on` | daemon を起動（ランダムな曲） |
+| `typiano on [--sound rhodes\|piano]` | daemon を起動（ランダム曲、音源選択） |
 | `typiano off` | daemon を停止 |
 | `typiano play <id>` | 指定した曲に切り替え |
 | `typiano list` | 利用可能な全曲を表示 |
-| `typiano status` | 現在の曲と進行状況を表示 |
+| `typiano status` | 現在の曲、進行状況、モード＆音源 |
 | `typiano random` | ランダムな曲に切り替え |
+| `typiano sound <rhodes\|piano>` | 音源を変更 |
+| `typiano mode <random\|repeat>` | 曲終了時の動作を設定 |
+| `typiano freeplay` | フリープレイモードに切り替え |
+| `typiano song` | 曲モードに戻る |
 | `typiano add <file>` | JSONからカスタム曲を追加 |
 | `typiano remove <id>` | ユーザーが追加した曲を削除 |
 
@@ -129,29 +143,50 @@ python3 tools/midi2typiano.py song.mid \
 
 | 作曲家 | 曲目 |
 |--------|------|
-| **Beethoven** | Für Elise, Moonlight Sonata, Pathétique (2nd mvt) |
+| **Beethoven** | Fur Elise, Moonlight Sonata, Pathetique (2nd mvt) |
 | **Chopin** | Nocturne Op.9 No.2, Waltz Op.64 No.2, Prelude Op.28 No.4, Etude Op.10 No.3, Ballade No.1, Fantasie-Impromptu, Raindrop Prelude |
 | **Debussy** | Clair de Lune, Arabesque No.1 |
 | **Bach** | Prelude in C Major BWV 846, Two-Part Invention No.1 |
 | **Mozart** | Turkish March, Eine kleine Nachtmusik |
-| **Liszt** | Liebesträum No.3, La Campanella |
+| **Liszt** | Liebestraum No.3, La Campanella |
 | **Tchaikovsky** | Swan Lake Theme, Waltz of the Flowers |
-| **Satie** | Gymnopédie No.1, Gnossienne No.1 |
-| **Ravel** | Boléro |
+| **Satie** | Gymnopedie No.1, Gnossienne No.1 |
+| **Ravel** | Bolero |
 | **Pachelbel** | Canon in D |
 | **Rimsky-Korsakov** | Flight of the Bumblebee |
 | **Yiruma** | River Flows in You |
-| **Tiersen** | Comptine d'un autre été (Amélie) |
-| **Schumann** | Träumerei |
+| **Tiersen** | Comptine d'un autre ete (Amelie) |
+| **Schumann** | Traumerei |
 | **Grieg** | Morning Mood (Peer Gynt) |
 
 ## 🎹 サウンド
 
-Typiano は General MIDI SoundFont から FluidSynth を使ってレンダリングした**エレクトリックピアノ（Rhodes）**サンプルを使用しています。
+Typiano は**2種類の音源**を搭載しています：
 
-- 61鍵: C2 – C7
-- クリーンで温かみのあるMIDIトーン
-- 自然なフェードアウト付き2秒サンプル
+- **Rhodes**（エレクトリックピアノ）— クリーンで温かみのあるMIDIトーン（デフォルト）
+- **Piano**（アコースティックピアノ）— 明るいアタック、豊かな倍音、長いサスティン
+
+61鍵 (C2 – C7)、倍音合成によるサンプル、自然なフェードアウト付き。
+
+音源切替：`typiano sound piano` または `typiano sound rhodes`
+
+## 🎹 フリープレイモード
+
+キーボードをピアノとして使えます！`typiano freeplay` で開始：
+
+```
+上オクターブ:   2    3         5    6    7              9    0
+                C#4  D#4       F#4  G#4  A#4            C#5  D#5
+              Q    W    E    R    T    Y    U    I    O    P
+              C4   D4   E4   F4   G4   A4   B4   C5   D5   E5
+
+下オクターブ:   S    D         G    H    J
+                C#3  D#3       F#3  G#3  A#3
+              Z    X    C    V    B    N    M
+              C3   D3   E3   F3   G3   A3   B3
+```
+
+曲モードに戻る：`typiano song`
 
 ## ⚙️ 仕組み
 
@@ -161,14 +196,16 @@ typiano on  →  バックグラウンド daemon が起動
                 ├── rodio          (オーディオ再生)
                 └── Unix socket    (IPC サーバー)
 
-キー入力  →  曲の次の音  →  エレクトリックピアノサンプルが再生
+曲モード:       キー入力  →  曲の次の音  →  サンプル再生
+フリープレイ:   キー入力  →  マッピングされたピアノ音  →  サンプル再生
 ```
 
 1. `typiano on` がバックグラウンドで daemon プロセスを起動します
 2. daemon が `rdev` を通じてグローバルキーボードイベントを取得します
-3. キーを押すたびに曲が進み、次のピアノの音が再生されます
-4. 曲が終わると、最初からループ再生します
-5. `typiano off` が Unix domain socket 経由でシャットダウンコマンドを送信します
+3. **曲モード**ではキーを押すたびに曲が進み、次のピアノの音が再生されます
+4. 曲が終わると：**ランダムモード**は自動で次の曲へ、**リピートモード**は最初からループ
+5. **フリープレイモード**ではキーがピアノの音にマッピングされ、自由演奏が可能
+6. `typiano off` が Unix domain socket 経由でシャットダウンコマンドを送信します
 
 ## 🖥️ 動作環境
 
@@ -187,16 +224,16 @@ src/
 ├── main.rs      # CLI エントリーポイント (clap)
 ├── cli.rs       # サブコマンドハンドラ
 ├── daemon.rs    # daemon ライフサイクル (fork, PID, signal)
-├── input.rs     # rdev キーリスナー
-├── engine.rs    # 曲のステートマシン (現在の曲, 音符インデックス, ループ)
-├── audio.rs     # rodio 再生, サンプルバンク
+├── input.rs     # rdev キーリスナー (Keyイベント送信)
+├── engine.rs    # 曲のステートマシン、再生/ゲームモード、キー→音符マッピング
+├── audio.rs     # rodio 再生、デュアルサンプルバンク (Rhodes/Piano)
 ├── ipc.rs       # Unix socket サーバー/クライアント
 ├── songs.rs     # 曲の構造体, ローダー, バリデーター
 └── config.rs    # パスと状態
 
 tools/
 ├── midi2typiano.py      # MIDI → JSON 曲コンバーター
-└── generate_samples.sh  # サンプル生成スクリプト
+└── generate_samples.sh  # サンプル生成スクリプト (Rhodes + Piano)
 ```
 
 ## 🤝 コントリビュート

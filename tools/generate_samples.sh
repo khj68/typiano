@@ -1,9 +1,8 @@
 #!/bin/bash
 # Generate piano-like WAV samples using ffmpeg
-# Piano tone = fundamental + harmonics with per-harmonic decay
+# Two sound types: Rhodes (electric piano) and Piano (acoustic piano)
 
-OUTDIR="$(dirname "$0")/../assets/samples"
-mkdir -p "$OUTDIR"
+BASEDIR="$(dirname "$0")/../assets/samples"
 
 declare -A FREQS
 FREQS=(
@@ -25,54 +24,132 @@ FREQS=(
     ["C7"]=2093.00
 )
 
-rm -f "$OUTDIR"/*.wav
+generate_rhodes() {
+    local OUTDIR="$BASEDIR/rhodes"
+    mkdir -p "$OUTDIR"
+    rm -f "$OUTDIR"/*.wav
 
-for note in "${!FREQS[@]}"; do
-    freq=${FREQS[$note]}
-    outfile="$OUTDIR/${note}.wav"
+    echo "=== Generating Rhodes (Electric Piano) samples ==="
 
-    echo "Generating $note (${freq}Hz)..."
+    for note in "${!FREQS[@]}"; do
+        freq=${FREQS[$note]}
+        outfile="$OUTDIR/${note}.wav"
 
-    freq2=$(printf "%.2f" "$(echo "$freq * 2" | bc -l)")
-    freq3=$(printf "%.2f" "$(echo "$freq * 3" | bc -l)")
-    freq4=$(printf "%.2f" "$(echo "$freq * 4" | bc -l)")
-    freq5=$(printf "%.2f" "$(echo "$freq * 5" | bc -l)")
+        echo "  Rhodes: $note (${freq}Hz)..."
 
-    # Higher notes = shorter sustain
-    if (( $(echo "$freq < 200" | bc -l) )); then
-        dur=3.0; fd=2.5
-    elif (( $(echo "$freq < 500" | bc -l) )); then
-        dur=2.0; fd=1.7
-    elif (( $(echo "$freq < 1000" | bc -l) )); then
-        dur=1.5; fd=1.3
-    else
-        dur=1.0; fd=0.9
-    fi
+        freq2=$(printf "%.2f" "$(echo "$freq * 2" | bc -l)")
+        freq3=$(printf "%.2f" "$(echo "$freq * 3" | bc -l)")
+        freq4=$(printf "%.2f" "$(echo "$freq * 4" | bc -l)")
+        freq5=$(printf "%.2f" "$(echo "$freq * 5" | bc -l)")
 
-    fd2=$(printf "%.2f" "$(echo "$fd * 0.7" | bc -l)")
-    fd3=$(printf "%.2f" "$(echo "$fd * 0.5" | bc -l)")
-    fd4=$(printf "%.2f" "$(echo "$fd * 0.35" | bc -l)")
-    fd5=$(printf "%.2f" "$(echo "$fd * 0.25" | bc -l)")
+        # Higher notes = shorter sustain
+        if (( $(echo "$freq < 200" | bc -l) )); then
+            dur=3.0; fd=2.5
+        elif (( $(echo "$freq < 500" | bc -l) )); then
+            dur=2.0; fd=1.7
+        elif (( $(echo "$freq < 1000" | bc -l) )); then
+            dur=1.5; fd=1.3
+        else
+            dur=1.0; fd=0.9
+        fi
 
-    ffmpeg -y -loglevel error \
-        -f lavfi -i "sine=frequency=${freq}:duration=${dur}" \
-        -f lavfi -i "sine=frequency=${freq2}:duration=${dur}" \
-        -f lavfi -i "sine=frequency=${freq3}:duration=${dur}" \
-        -f lavfi -i "sine=frequency=${freq4}:duration=${dur}" \
-        -f lavfi -i "sine=frequency=${freq5}:duration=${dur}" \
-        -filter_complex "\
-            [0:a]volume=0.50,afade=t=out:st=0.3:d=${fd}[h1]; \
-            [1:a]volume=0.22,afade=t=out:st=0.1:d=${fd2}[h2]; \
-            [2:a]volume=0.12,afade=t=out:st=0.05:d=${fd3}[h3]; \
-            [3:a]volume=0.06,afade=t=out:st=0.02:d=${fd4}[h4]; \
-            [4:a]volume=0.03,afade=t=out:st=0.01:d=${fd5}[h5]; \
-            [h1][h2][h3][h4][h5]amix=inputs=5:duration=longest:normalize=0, \
-            afade=t=in:d=0.005, \
-            volume=2.5 \
-        " \
-        -ar 44100 -ac 1 -sample_fmt s16 \
-        "$outfile"
-done
+        fd2=$(printf "%.2f" "$(echo "$fd * 0.7" | bc -l)")
+        fd3=$(printf "%.2f" "$(echo "$fd * 0.5" | bc -l)")
+        fd4=$(printf "%.2f" "$(echo "$fd * 0.35" | bc -l)")
+        fd5=$(printf "%.2f" "$(echo "$fd * 0.25" | bc -l)")
+
+        ffmpeg -y -loglevel error \
+            -f lavfi -i "sine=frequency=${freq}:duration=${dur}" \
+            -f lavfi -i "sine=frequency=${freq2}:duration=${dur}" \
+            -f lavfi -i "sine=frequency=${freq3}:duration=${dur}" \
+            -f lavfi -i "sine=frequency=${freq4}:duration=${dur}" \
+            -f lavfi -i "sine=frequency=${freq5}:duration=${dur}" \
+            -filter_complex "\
+                [0:a]volume=0.50,afade=t=out:st=0.3:d=${fd}[h1]; \
+                [1:a]volume=0.22,afade=t=out:st=0.1:d=${fd2}[h2]; \
+                [2:a]volume=0.12,afade=t=out:st=0.05:d=${fd3}[h3]; \
+                [3:a]volume=0.06,afade=t=out:st=0.02:d=${fd4}[h4]; \
+                [4:a]volume=0.03,afade=t=out:st=0.01:d=${fd5}[h5]; \
+                [h1][h2][h3][h4][h5]amix=inputs=5:duration=longest:normalize=0, \
+                afade=t=in:d=0.005, \
+                volume=2.5 \
+            " \
+            -ar 44100 -ac 1 -sample_fmt s16 \
+            "$outfile"
+    done
+
+    echo "Rhodes: Generated $(ls "$OUTDIR"/*.wav 2>/dev/null | wc -l) samples."
+}
+
+generate_piano() {
+    local OUTDIR="$BASEDIR/piano"
+    mkdir -p "$OUTDIR"
+    rm -f "$OUTDIR"/*.wav
+
+    echo "=== Generating Piano (Acoustic) samples ==="
+
+    for note in "${!FREQS[@]}"; do
+        freq=${FREQS[$note]}
+        outfile="$OUTDIR/${note}.wav"
+
+        echo "  Piano: $note (${freq}Hz)..."
+
+        freq2=$(printf "%.2f" "$(echo "$freq * 2" | bc -l)")
+        freq3=$(printf "%.2f" "$(echo "$freq * 3" | bc -l)")
+        freq4=$(printf "%.2f" "$(echo "$freq * 4" | bc -l)")
+        freq5=$(printf "%.2f" "$(echo "$freq * 5" | bc -l)")
+        freq6=$(printf "%.2f" "$(echo "$freq * 6" | bc -l)")
+        freq7=$(printf "%.2f" "$(echo "$freq * 7" | bc -l)")
+
+        # Acoustic piano: longer sustain, slower decay
+        if (( $(echo "$freq < 200" | bc -l) )); then
+            dur=4.0; fd=3.5
+        elif (( $(echo "$freq < 500" | bc -l) )); then
+            dur=3.0; fd=2.5
+        elif (( $(echo "$freq < 1000" | bc -l) )); then
+            dur=2.0; fd=1.8
+        else
+            dur=1.5; fd=1.2
+        fi
+
+        # Acoustic piano harmonics: brighter attack, richer overtones
+        fd2=$(printf "%.2f" "$(echo "$fd * 0.8" | bc -l)")
+        fd3=$(printf "%.2f" "$(echo "$fd * 0.6" | bc -l)")
+        fd4=$(printf "%.2f" "$(echo "$fd * 0.4" | bc -l)")
+        fd5=$(printf "%.2f" "$(echo "$fd * 0.3" | bc -l)")
+        fd6=$(printf "%.2f" "$(echo "$fd * 0.2" | bc -l)")
+        fd7=$(printf "%.2f" "$(echo "$fd * 0.15" | bc -l)")
+
+        ffmpeg -y -loglevel error \
+            -f lavfi -i "sine=frequency=${freq}:duration=${dur}" \
+            -f lavfi -i "sine=frequency=${freq2}:duration=${dur}" \
+            -f lavfi -i "sine=frequency=${freq3}:duration=${dur}" \
+            -f lavfi -i "sine=frequency=${freq4}:duration=${dur}" \
+            -f lavfi -i "sine=frequency=${freq5}:duration=${dur}" \
+            -f lavfi -i "sine=frequency=${freq6}:duration=${dur}" \
+            -f lavfi -i "sine=frequency=${freq7}:duration=${dur}" \
+            -filter_complex "\
+                [0:a]volume=0.40,afade=t=out:st=0.5:d=${fd}[h1]; \
+                [1:a]volume=0.25,afade=t=out:st=0.2:d=${fd2}[h2]; \
+                [2:a]volume=0.15,afade=t=out:st=0.1:d=${fd3}[h3]; \
+                [3:a]volume=0.08,afade=t=out:st=0.05:d=${fd4}[h4]; \
+                [4:a]volume=0.05,afade=t=out:st=0.03:d=${fd5}[h5]; \
+                [5:a]volume=0.04,afade=t=out:st=0.02:d=${fd6}[h6]; \
+                [6:a]volume=0.03,afade=t=out:st=0.01:d=${fd7}[h7]; \
+                [h1][h2][h3][h4][h5][h6][h7]amix=inputs=7:duration=longest:normalize=0, \
+                afade=t=in:d=0.003, \
+                volume=2.8 \
+            " \
+            -ar 44100 -ac 1 -sample_fmt s16 \
+            "$outfile"
+    done
+
+    echo "Piano: Generated $(ls "$OUTDIR"/*.wav 2>/dev/null | wc -l) samples."
+}
+
+# Generate both sample sets
+generate_rhodes
+generate_piano
 
 echo ""
-echo "Done! Generated $(ls "$OUTDIR"/*.wav 2>/dev/null | wc -l) samples."
+echo "Done! All samples generated."

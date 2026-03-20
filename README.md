@@ -32,29 +32,41 @@ Type an email, write code, chat with friends — and hear Chopin, Debussy, or Ba
 
 ```
 $ typiano on
-🎹 typiano started! Start typing to play piano.
+🎹 typiano started! Start typing to play piano. (sound: rhodes)
 
 $ typiano status
 Now playing: Chopin - Nocturne Op.9 No.2
 Song ID:     chopin-nocturne-9-2
 Progress:    [████████░░░░░░░░░░░░] 63/150 notes (42%)
+Sound:       rhodes
+Play mode:   random
+Game mode:   song
 
-$ typiano list
-Available songs (29):
+$ typiano sound piano
+Sound changed to: piano
 
-   fur-elise                      Beethoven - Fur Elise
-   chopin-nocturne-9-2            Chopin - Nocturne Op.9 No.2
-   river-flows-in-you             Yiruma - River Flows in You
-   ...
-
-$ typiano random
-Now playing: Ravel - Bolero
+$ typiano freeplay
+🎹 Free play mode! Your keyboard is now a piano.
+  White keys: A(A3) S(B3) D(C4) F(D4) G(E4) H(F4) J(G4) K(A4) L(B4) ;(C5) '(D5)
+  Black keys: W(Bb3) R(Db4) T(Eb4) Y(Gb4) U(Ab4) I(Bb4) P(Db5)
 
 $ typiano off
 typiano stopped.
 ```
 
 ## 📦 Installation
+
+### Prerequisites
+
+Typiano is built with Rust. If you don't have Rust installed:
+
+```bash
+# Option 1: Official installer (recommended)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Option 2: Homebrew (macOS)
+brew install rust
+```
 
 ### From source (recommended)
 
@@ -82,12 +94,16 @@ brew install typiano
 
 | Command | Description |
 |---------|-------------|
-| `typiano on` | Start daemon (random song) |
+| `typiano on [--sound rhodes\|piano]` | Start daemon (random song, optional sound) |
 | `typiano off` | Stop daemon |
 | `typiano play <id>` | Switch to a specific song |
 | `typiano list` | Show all available songs |
-| `typiano status` | Current song & progress |
+| `typiano status` | Current song, progress, mode & sound |
 | `typiano random` | Switch to a random song |
+| `typiano sound <rhodes\|piano>` | Change sound type |
+| `typiano mode <random\|repeat>` | Set play mode for song endings |
+| `typiano freeplay` | Enter free play mode (keyboard as piano) |
+| `typiano song` | Return to song mode |
 | `typiano add <file>` | Add a custom song from JSON |
 | `typiano remove <id>` | Remove a user-added song |
 
@@ -129,29 +145,50 @@ python3 tools/midi2typiano.py song.mid \
 
 | Composer | Pieces |
 |----------|--------|
-| **Beethoven** | Für Elise, Moonlight Sonata, Pathétique (2nd mvt) |
+| **Beethoven** | Fur Elise, Moonlight Sonata, Pathetique (2nd mvt) |
 | **Chopin** | Nocturne Op.9 No.2, Waltz Op.64 No.2, Prelude Op.28 No.4, Etude Op.10 No.3, Ballade No.1, Fantasie-Impromptu, Raindrop Prelude |
 | **Debussy** | Clair de Lune, Arabesque No.1 |
 | **Bach** | Prelude in C Major BWV 846, Two-Part Invention No.1 |
 | **Mozart** | Turkish March, Eine kleine Nachtmusik |
-| **Liszt** | Liebesträum No.3, La Campanella |
+| **Liszt** | Liebestraum No.3, La Campanella |
 | **Tchaikovsky** | Swan Lake Theme, Waltz of the Flowers |
-| **Satie** | Gymnopédie No.1, Gnossienne No.1 |
-| **Ravel** | Boléro |
+| **Satie** | Gymnopedie No.1, Gnossienne No.1 |
+| **Ravel** | Bolero |
 | **Pachelbel** | Canon in D |
 | **Rimsky-Korsakov** | Flight of the Bumblebee |
 | **Yiruma** | River Flows in You |
-| **Tiersen** | Comptine d'un autre été (Amélie) |
-| **Schumann** | Träumerei |
+| **Tiersen** | Comptine d'un autre ete (Amelie) |
+| **Schumann** | Traumerei |
 | **Grieg** | Morning Mood (Peer Gynt) |
 
 ## 🎹 Sound
 
-Typiano uses **Electric Piano (Rhodes)** samples rendered from a General MIDI SoundFont via FluidSynth.
+Typiano comes with **two sound types**:
 
-- 61 keys: C2 – C7
-- Clean, warm MIDI tone
-- 2-second samples with natural fade-out
+- **Rhodes** (Electric Piano) — Clean, warm MIDI tone (default)
+- **Piano** (Acoustic Piano) — Brighter attack, richer overtones, longer sustain
+
+Both use synthesized samples: 61 keys (C2 – C7) with harmonic overtones and natural fade-out.
+
+Switch anytime: `typiano sound piano` or `typiano sound rhodes`
+
+## 🎹 Free Play Mode
+
+Use your keyboard as a piano! Enter with `typiano freeplay`:
+
+```
+Upper octave:   2    3         5    6    7              9    0
+                C#4  D#4       F#4  G#4  A#4            C#5  D#5
+              Q    W    E    R    T    Y    U    I    O    P
+              C4   D4   E4   F4   G4   A4   B4   C5   D5   E5
+
+Lower octave:   S    D         G    H    J
+                C#3  D#3       F#3  G#3  A#3
+              Z    X    C    V    B    N    M
+              C3   D3   E3   F3   G3   A3   B3
+```
+
+Return to song mode: `typiano song`
 
 ## ⚙️ How It Works
 
@@ -161,14 +198,16 @@ typiano on  →  background daemon spawns
                 ├── rodio          (audio playback)
                 └── Unix socket    (IPC server)
 
-keystroke  →  next note from song  →  electric piano sample plays
+Song mode:      keystroke  →  next note from song  →  sample plays
+Free play mode: keystroke  →  mapped piano note    →  sample plays
 ```
 
 1. `typiano on` spawns a background daemon process
 2. The daemon captures global keyboard events via `rdev`
-3. Each keypress advances the song and plays the next note
-4. When the song ends, it loops from the beginning
-5. `typiano off` sends a shutdown command via Unix domain socket
+3. In **song mode**, each keypress advances the song and plays the next note
+4. When the song ends: **random mode** auto-switches to a new song, **repeat mode** loops
+5. In **free play mode**, keys are mapped to piano notes for live performance
+6. `typiano off` sends a shutdown command via Unix domain socket
 
 ## 🖥️ Requirements
 
@@ -187,16 +226,16 @@ src/
 ├── main.rs      # CLI entrypoint (clap)
 ├── cli.rs       # Subcommand handlers
 ├── daemon.rs    # Daemon lifecycle (fork, PID, signal)
-├── input.rs     # rdev key listener
-├── engine.rs    # Song state machine (current song, note index, looping)
-├── audio.rs     # rodio playback, sample bank
+├── input.rs     # rdev key listener (sends Key events)
+├── engine.rs    # Song state machine, play/game modes, key-to-note mapping
+├── audio.rs     # rodio playback, dual sample banks (Rhodes/Piano)
 ├── ipc.rs       # Unix socket server/client
 ├── songs.rs     # Song struct, loader, validator
 └── config.rs    # Paths & state
 
 tools/
 ├── midi2typiano.py      # MIDI → JSON song converter
-└── generate_samples.sh  # Sample generation script
+└── generate_samples.sh  # Sample generation script (Rhodes + Piano)
 ```
 
 ## 🤝 Contributing

@@ -32,29 +32,39 @@
 
 ```
 $ typiano on
-🎹 typiano started! Start typing to play piano.
+🎹 typiano started! Start typing to play piano. (sound: rhodes)
 
 $ typiano status
 Now playing: Chopin - Nocturne Op.9 No.2
 Song ID:     chopin-nocturne-9-2
 Progress:    [████████░░░░░░░░░░░░] 63/150 notes (42%)
+Sound:       rhodes
+Play mode:   random
+Game mode:   song
 
-$ typiano list
-Available songs (29):
+$ typiano sound piano
+Sound changed to: piano
 
-   fur-elise                      Beethoven - Fur Elise
-   chopin-nocturne-9-2            Chopin - Nocturne Op.9 No.2
-   river-flows-in-you             Yiruma - River Flows in You
-   ...
-
-$ typiano random
-Now playing: Ravel - Bolero
+$ typiano freeplay
+🎹 Free play mode! Your keyboard is now a piano.
 
 $ typiano off
 typiano stopped.
 ```
 
 ## 📦 설치
+
+### 사전 요구사항
+
+Typiano는 Rust로 작성되었습니다. Rust가 설치되어 있지 않다면:
+
+```bash
+# 방법 1: 공식 설치 도구 (권장)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# 방법 2: Homebrew (macOS)
+brew install rust
+```
 
 ### 소스에서 빌드 (권장)
 
@@ -82,12 +92,16 @@ brew install typiano
 
 | 명령어 | 설명 |
 |---------|------|
-| `typiano on` | daemon 시작 (랜덤 곡) |
+| `typiano on [--sound rhodes\|piano]` | daemon 시작 (랜덤 곡, 음원 선택) |
 | `typiano off` | daemon 종료 |
 | `typiano play <id>` | 특정 곡으로 변경 |
 | `typiano list` | 수록곡 전체 목록 |
-| `typiano status` | 현재 곡 & 진행 상황 |
+| `typiano status` | 현재 곡, 진행 상황, 모드 & 음원 |
 | `typiano random` | 랜덤 곡으로 변경 |
+| `typiano sound <rhodes\|piano>` | 음원 변경 |
+| `typiano mode <random\|repeat>` | 곡 끝 동작 설정 |
+| `typiano freeplay` | 건반 연주 모드 진입 |
+| `typiano song` | 곡 모드로 복귀 |
 | `typiano add <file>` | JSON 파일로 커스텀 곡 추가 |
 | `typiano remove <id>` | 사용자가 추가한 곡 삭제 |
 
@@ -129,29 +143,50 @@ python3 tools/midi2typiano.py song.mid \
 
 | 작곡가 | 수록곡 |
 |----------|--------|
-| **Beethoven** | Für Elise, Moonlight Sonata, Pathétique (2nd mvt) |
+| **Beethoven** | Fur Elise, Moonlight Sonata, Pathetique (2nd mvt) |
 | **Chopin** | Nocturne Op.9 No.2, Waltz Op.64 No.2, Prelude Op.28 No.4, Etude Op.10 No.3, Ballade No.1, Fantasie-Impromptu, Raindrop Prelude |
 | **Debussy** | Clair de Lune, Arabesque No.1 |
 | **Bach** | Prelude in C Major BWV 846, Two-Part Invention No.1 |
 | **Mozart** | Turkish March, Eine kleine Nachtmusik |
-| **Liszt** | Liebesträum No.3, La Campanella |
+| **Liszt** | Liebestraum No.3, La Campanella |
 | **Tchaikovsky** | Swan Lake Theme, Waltz of the Flowers |
-| **Satie** | Gymnopédie No.1, Gnossienne No.1 |
-| **Ravel** | Boléro |
+| **Satie** | Gymnopedie No.1, Gnossienne No.1 |
+| **Ravel** | Bolero |
 | **Pachelbel** | Canon in D |
 | **Rimsky-Korsakov** | Flight of the Bumblebee |
 | **Yiruma** | River Flows in You |
-| **Tiersen** | Comptine d'un autre été (Amélie) |
-| **Schumann** | Träumerei |
+| **Tiersen** | Comptine d'un autre ete (Amelie) |
+| **Schumann** | Traumerei |
 | **Grieg** | Morning Mood (Peer Gynt) |
 
 ## 🎹 사운드
 
-Typiano는 General MIDI SoundFont에서 FluidSynth를 통해 렌더링한 **일렉트릭 피아노 (Rhodes)** 샘플을 사용합니다.
+Typiano는 **두 가지 음원**을 제공합니다:
 
-- 61건반: C2 – C7
-- 깨끗하고 따뜻한 MIDI 톤
-- 자연스러운 페이드아웃이 적용된 2초 샘플
+- **Rhodes** (일렉트릭 피아노) — 깨끗하고 따뜻한 MIDI 톤 (기본값)
+- **Piano** (어쿠스틱 피아노) — 밝은 어택, 풍부한 배음, 긴 서스테인
+
+61건반 (C2 – C7), 하모닉 합성 기반 샘플에 자연스러운 페이드아웃 적용.
+
+음원 변경: `typiano sound piano` 또는 `typiano sound rhodes`
+
+## 🎹 건반 연주 모드
+
+키보드를 피아노처럼 사용하세요! `typiano freeplay`로 진입:
+
+```
+상위 옥타브:   2    3         5    6    7              9    0
+               C#4  D#4       F#4  G#4  A#4            C#5  D#5
+             Q    W    E    R    T    Y    U    I    O    P
+             C4   D4   E4   F4   G4   A4   B4   C5   D5   E5
+
+하위 옥타브:   S    D         G    H    J
+               C#3  D#3       F#3  G#3  A#3
+             Z    X    C    V    B    N    M
+             C3   D3   E3   F3   G3   A3   B3
+```
+
+곡 모드로 복귀: `typiano song`
 
 ## ⚙️ 동작 원리
 
@@ -161,14 +196,16 @@ typiano on  →  백그라운드 daemon 실행
                 ├── rodio          (오디오 재생)
                 └── Unix socket    (IPC 서버)
 
-키 입력  →  곡의 다음 음표  →  일렉트릭 피아노 샘플 재생
+곡 모드:        키 입력  →  곡의 다음 음표  →  샘플 재생
+건반 모드:      키 입력  →  매핑된 피아노 음  →  샘플 재생
 ```
 
 1. `typiano on`은 백그라운드 daemon 프로세스를 실행합니다
 2. daemon은 `rdev`를 통해 전역 키보드 이벤트를 감지합니다
-3. 키를 누를 때마다 곡이 진행되며 다음 피아노 음이 재생됩니다
-4. 곡이 끝나면 처음부터 다시 반복합니다
-5. `typiano off`는 Unix domain socket을 통해 종료 명령을 보냅니다
+3. **곡 모드**에서 키를 누를 때마다 곡이 진행되며 다음 피아노 음이 재생됩니다
+4. 곡이 끝나면: **랜덤 모드**는 자동으로 다음 곡으로, **반복 모드**는 처음부터 반복
+5. **건반 모드**에서는 키보드 자판이 피아노 건반에 매핑되어 자유 연주 가능
+6. `typiano off`는 Unix domain socket을 통해 종료 명령을 보냅니다
 
 ## 🖥️ 시스템 요구사항
 
@@ -187,16 +224,16 @@ src/
 ├── main.rs      # CLI 진입점 (clap)
 ├── cli.rs       # 서브커맨드 핸들러
 ├── daemon.rs    # daemon 생명주기 (fork, PID, signal)
-├── input.rs     # rdev 키 리스너
-├── engine.rs    # 곡 상태 머신 (현재 곡, 음표 인덱스, 반복)
-├── audio.rs     # rodio 재생, 샘플 뱅크
+├── input.rs     # rdev 키 리스너 (Key 이벤트 전송)
+├── engine.rs    # 곡 상태 머신, 재생/게임 모드, 키→음표 매핑
+├── audio.rs     # rodio 재생, 듀얼 샘플 뱅크 (Rhodes/Piano)
 ├── ipc.rs       # Unix socket 서버/클라이언트
 ├── songs.rs     # 곡 구조체, 로더, 검증기
 └── config.rs    # 경로 & 상태
 
 tools/
 ├── midi2typiano.py      # MIDI → JSON 곡 변환기
-└── generate_samples.sh  # 샘플 생성 스크립트
+└── generate_samples.sh  # 샘플 생성 스크립트 (Rhodes + Piano)
 ```
 
 ## 🤝 기여하기

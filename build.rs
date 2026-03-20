@@ -2,15 +2,10 @@ use std::env;
 use std::fs;
 use std::path::Path;
 
-fn main() {
-    let out_dir = env::var("OUT_DIR").unwrap();
-    let dest_path = Path::new(&out_dir).join("sample_bank.rs");
-
-    let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
-    let samples_dir = Path::new(&manifest_dir).join("assets/samples");
+fn build_bank(samples_dir: &Path, fn_name: &str) -> String {
     let mut entries: Vec<(String, String)> = Vec::new();
 
-    if let Ok(dir) = fs::read_dir(&samples_dir) {
+    if let Ok(dir) = fs::read_dir(samples_dir) {
         for entry in dir.flatten() {
             let path = entry.path();
             if path.extension().and_then(|e| e.to_str()) == Some("wav") {
@@ -24,7 +19,9 @@ fn main() {
     entries.sort_by(|a, b| a.0.cmp(&b.0));
 
     let mut code = String::new();
-    code.push_str("fn build_sample_bank() -> std::collections::HashMap<String, &'static [u8]> {\n");
+    code.push_str(&format!(
+        "fn {fn_name}() -> std::collections::HashMap<String, &'static [u8]> {{\n"
+    ));
     code.push_str("    let mut samples = std::collections::HashMap::new();\n");
 
     for (note, path) in &entries {
@@ -34,8 +31,25 @@ fn main() {
     }
 
     code.push_str("    samples\n}\n");
+    code
+}
+
+fn main() {
+    let out_dir = env::var("OUT_DIR").unwrap();
+    let dest_path = Path::new(&out_dir).join("sample_bank.rs");
+
+    let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
+
+    let rhodes_dir = Path::new(&manifest_dir).join("assets/samples/rhodes");
+    let piano_dir = Path::new(&manifest_dir).join("assets/samples/piano");
+
+    let mut code = String::new();
+    code.push_str(&build_bank(&rhodes_dir, "build_rhodes_bank"));
+    code.push_str("\n");
+    code.push_str(&build_bank(&piano_dir, "build_piano_bank"));
 
     fs::write(&dest_path, code).unwrap();
 
-    println!("cargo:rerun-if-changed=assets/samples");
+    println!("cargo:rerun-if-changed=assets/samples/rhodes");
+    println!("cargo:rerun-if-changed=assets/samples/piano");
 }

@@ -32,29 +32,39 @@
 
 ```
 $ typiano on
-🎹 typiano started! Start typing to play piano.
+🎹 typiano started! Start typing to play piano. (sound: rhodes)
 
 $ typiano status
 Now playing: Chopin - Nocturne Op.9 No.2
 Song ID:     chopin-nocturne-9-2
 Progress:    [████████░░░░░░░░░░░░] 63/150 notes (42%)
+Sound:       rhodes
+Play mode:   random
+Game mode:   song
 
-$ typiano list
-Available songs (29):
+$ typiano sound piano
+Sound changed to: piano
 
-   fur-elise                      Beethoven - Fur Elise
-   chopin-nocturne-9-2            Chopin - Nocturne Op.9 No.2
-   river-flows-in-you             Yiruma - River Flows in You
-   ...
-
-$ typiano random
-Now playing: Ravel - Bolero
+$ typiano freeplay
+🎹 Free play mode! Your keyboard is now a piano.
 
 $ typiano off
 typiano stopped.
 ```
 
 ## 📦 安装
+
+### 前置条件
+
+Typiano 使用 Rust 构建。如果你还没有安装 Rust：
+
+```bash
+# 方法一：官方安装器（推荐）
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# 方法二：Homebrew (macOS)
+brew install rust
+```
 
 ### 从源码安装（推荐）
 
@@ -82,12 +92,16 @@ brew install typiano
 
 | 命令 | 说明 |
 |---------|-------------|
-| `typiano on` | 启动 daemon（随机歌曲） |
+| `typiano on [--sound rhodes\|piano]` | 启动 daemon（随机歌曲，可选音色） |
 | `typiano off` | 停止 daemon |
 | `typiano play <id>` | 切换到指定歌曲 |
 | `typiano list` | 显示所有可用歌曲 |
-| `typiano status` | 查看当前歌曲和进度 |
+| `typiano status` | 查看当前歌曲、进度、模式和音色 |
 | `typiano random` | 随机切换歌曲 |
+| `typiano sound <rhodes\|piano>` | 切换音色 |
+| `typiano mode <random\|repeat>` | 设置歌曲结束后的行为 |
+| `typiano freeplay` | 进入自由演奏模式 |
+| `typiano song` | 返回歌曲模式 |
 | `typiano add <file>` | 从 JSON 文件添加自定义歌曲 |
 | `typiano remove <id>` | 移除用户添加的歌曲 |
 
@@ -129,29 +143,50 @@ python3 tools/midi2typiano.py song.mid \
 
 | 作曲家 | 作品 |
 |----------|--------|
-| **Beethoven** | Für Elise, Moonlight Sonata, Pathétique (2nd mvt) |
+| **Beethoven** | Fur Elise, Moonlight Sonata, Pathetique (2nd mvt) |
 | **Chopin** | Nocturne Op.9 No.2, Waltz Op.64 No.2, Prelude Op.28 No.4, Etude Op.10 No.3, Ballade No.1, Fantasie-Impromptu, Raindrop Prelude |
 | **Debussy** | Clair de Lune, Arabesque No.1 |
 | **Bach** | Prelude in C Major BWV 846, Two-Part Invention No.1 |
 | **Mozart** | Turkish March, Eine kleine Nachtmusik |
-| **Liszt** | Liebesträum No.3, La Campanella |
+| **Liszt** | Liebestraum No.3, La Campanella |
 | **Tchaikovsky** | Swan Lake Theme, Waltz of the Flowers |
-| **Satie** | Gymnopédie No.1, Gnossienne No.1 |
-| **Ravel** | Boléro |
+| **Satie** | Gymnopedie No.1, Gnossienne No.1 |
+| **Ravel** | Bolero |
 | **Pachelbel** | Canon in D |
 | **Rimsky-Korsakov** | Flight of the Bumblebee |
 | **Yiruma** | River Flows in You |
-| **Tiersen** | Comptine d'un autre été (Amélie) |
-| **Schumann** | Träumerei |
+| **Tiersen** | Comptine d'un autre ete (Amelie) |
+| **Schumann** | Traumerei |
 | **Grieg** | Morning Mood (Peer Gynt) |
 
 ## 🎹 音色
 
-Typiano 使用 **Electric Piano (Rhodes)** 采样，通过 FluidSynth 从 General MIDI SoundFont 渲染而成。
+Typiano 提供**两种音色**：
 
-- 61 个琴键：C2 – C7
-- 干净、温暖的 MIDI 音色
-- 2 秒采样，自然渐弱收尾
+- **Rhodes**（电钢琴）— 干净、温暖的 MIDI 音色（默认）
+- **Piano**（原声钢琴）— 更明亮的起音，更丰富的泛音，更长的延音
+
+61 个琴键 (C2 – C7)，基于谐波合成的采样，自然渐弱收尾。
+
+切换音色：`typiano sound piano` 或 `typiano sound rhodes`
+
+## 🎹 自由演奏模式
+
+用键盘当钢琴！使用 `typiano freeplay` 进入：
+
+```
+高八度:   2    3         5    6    7              9    0
+          C#4  D#4       F#4  G#4  A#4            C#5  D#5
+        Q    W    E    R    T    Y    U    I    O    P
+        C4   D4   E4   F4   G4   A4   B4   C5   D5   E5
+
+低八度:   S    D         G    H    J
+          C#3  D#3       F#3  G#3  A#3
+        Z    X    C    V    B    N    M
+        C3   D3   E3   F3   G3   A3   B3
+```
+
+返回歌曲模式：`typiano song`
 
 ## ⚙️ 工作原理
 
@@ -161,14 +196,16 @@ typiano on  →  后台 daemon 进程启动
                 ├── rodio          (音频播放)
                 └── Unix socket    (IPC 服务器)
 
-击键  →  歌曲的下一个音符  →  播放电钢琴采样
+歌曲模式:       击键  →  歌曲的下一个音符  →  采样播放
+自由演奏模式:   击键  →  映射的钢琴音符    →  采样播放
 ```
 
 1. `typiano on` 启动一个后台 daemon 进程
 2. daemon 通过 `rdev` 捕获全局键盘事件
-3. 每次按键推进歌曲进度，播放下一个钢琴音符
-4. 歌曲结束后自动从头循环播放
-5. `typiano off` 通过 Unix domain socket 发送关闭命令
+3. **歌曲模式**下每次按键推进歌曲进度，播放下一个钢琴音符
+4. 歌曲结束后：**随机模式**自动切换到新歌曲，**重复模式**从头循环
+5. **自由演奏模式**下按键映射到钢琴音符，可自由弹奏
+6. `typiano off` 通过 Unix domain socket 发送关闭命令
 
 ## 🖥️ 系统要求
 
@@ -187,16 +224,16 @@ src/
 ├── main.rs      # CLI 入口 (clap)
 ├── cli.rs       # 子命令处理
 ├── daemon.rs    # daemon 生命周期（fork、PID、信号）
-├── input.rs     # rdev 按键监听
-├── engine.rs    # 歌曲状态机（当前歌曲、音符索引、循环）
-├── audio.rs     # rodio 播放、采样库
+├── input.rs     # rdev 按键监听（发送 Key 事件）
+├── engine.rs    # 歌曲状态机、播放/游戏模式、按键→音符映射
+├── audio.rs     # rodio 播放、双采样库（Rhodes/Piano）
 ├── ipc.rs       # Unix socket 服务器/客户端
 ├── songs.rs     # 歌曲结构体、加载器、验证器
 └── config.rs    # 路径与状态
 
 tools/
 ├── midi2typiano.py      # MIDI → JSON 歌曲转换器
-└── generate_samples.sh  # 采样生成脚本
+└── generate_samples.sh  # 采样生成脚本（Rhodes + Piano）
 ```
 
 ## 🤝 参与贡献
